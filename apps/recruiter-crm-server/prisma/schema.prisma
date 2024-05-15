@@ -1,0 +1,73 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Client {
+  address     String?
+  createdAt   DateTime     @default(now())
+  email       String?
+  id          String       @id @default(cuid())
+  jobOpenings JobOpening[]
+  name        String?
+  phone       String?
+  updatedAt   DateTime     @updatedAt
+}
+
+model Candidate {
+  application   Application?  @relation(name: "ApplicationOnCandidates", fields: [applicationId], references: [id])
+  applicationId String?
+  applications  Application[] @relation(name: "ApplicationsOnCandidate")
+  createdAt     DateTime      @default(now())
+  email         String?
+  firstName     String?
+  id            String        @id @default(cuid())
+  lastName      String?
+  phone         String?
+  resume        Json?
+  updatedAt     DateTime      @updatedAt
+}
+
+model Application {
+  candidate    Candidate?             @relation(name: "ApplicationsOnCandidate", fields: [candidateId], references: [id])
+  candidateId  String?
+  candidates   Candidate[]            @relation(name: "ApplicationOnCandidates")
+  createdAt    DateTime               @default(now())
+  id           String                 @id @default(cuid())
+  jobOpening   JobOpening?            @relation(fields: [jobOpeningId], references: [id])
+  jobOpeningId String?
+  status       EnumApplicationStatus?
+  updatedAt    DateTime               @updatedAt
+}
+
+model JobOpening {
+  applications Application[]
+  client       Client?       @relation(fields: [clientId], references: [id])
+  clientId     String?
+  createdAt    DateTime      @default(now())
+  description  String?
+  id           String        @id @default(cuid())
+  title        String?
+  updatedAt    DateTime      @updatedAt
+}
+
+model User {
+  createdAt DateTime        @default(now())
+  id        String          @id @default(cuid())
+  password  String?
+  roles     EnumUserRoles[]
+  updatedAt DateTime        @updatedAt
+  username  String?
+}
+
+enum EnumApplicationStatus {
+  Option1
+}
+
+enum EnumUserRoles {
+  Option1
+}
